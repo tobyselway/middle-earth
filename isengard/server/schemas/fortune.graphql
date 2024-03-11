@@ -1,0 +1,4 @@
+type Query {
+  "Shows you the wisdom of the universe"
+  fortune: String!
+}

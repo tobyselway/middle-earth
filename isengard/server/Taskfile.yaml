@@ -1,0 +1,44 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true
+
+  start: 
+    desc: runs graphQL go server
+    cmds: 
+      - go run server.go
+      
+  build: 
+    desc: runs graphQL go server
+    cmds: 
+      - GOOS=linux go build server.go
+
+  regenerate:
+    desc: regenerate resolvers from schema
+    cmds:
+      - go run github.com/99designs/gqlgen generate
+  # setup process
+  setup:
+    deps: [clean]
+    cmds:
+      - go mod init gql_project
+      - go get github.com/99designs/gqlgen
+      - printf '// +build tools\npackage tools\nimport _ "github.com/99designs/gqlgen"' | gofmt > tools.go
+      - go mod tidy
+      - go run github.com/99designs/gqlgen init
+      - task: personal-preferences
+      - task: regenerate
+      - echo "remember to update server.go deps!!!! (to resolvers. wtv)"
+
+  personal-preferences:
+    cmds:
+      - mkdir schemas 
+      - mv graph/schema.graphqls schemas/schema.graphql
+      - rm -Rf graph
+      - cp ../prepare/gqlgen.yml gqlgen.yml 
+  clean:
+    cmds: 
+      - rm -Rf model resolvers schemas

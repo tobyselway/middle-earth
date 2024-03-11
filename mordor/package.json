@@ -1,0 +1,23 @@
+{
+  "name": "mordor",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "bun index.js"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.10.0",
+    "@apollo/subgraph": "^2.7.1",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
+    "jsonwebtoken": "^9.0.2",
+    "md5": "^2.3.0",
+    "uuid": "^9.0.1"
+  }
+}

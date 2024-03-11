@@ -1,0 +1,56 @@
+version: '3'
+
+includes:
+  isengard:
+    dir: ./isengard
+    taskfile: ./isengard
+  gateway:
+    dir: ./gateway
+    taskfile: ./gateway
+  mordor:
+    dir: ./mordor
+    taskfile: ./mordor
+  shire:
+    dir: ./shire
+    taskfile: ./shire
+  test:
+    dir: ./test
+    taskfile: ./test
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true
+  run-subgraphs:
+    cmds:
+      - task -p mordor:run isengard:run  
+    silent: true
+  run-gateway:
+    cmds:
+      - task -p mordor:run isengard:run  
+    silent: true
+  test:
+    desc: runs tests
+    cmds:
+      - task: test:run
+  test-docker:
+    desc: runs tests using docker compose
+    cmds:
+      - docker-compose exec gandalf_the_green task setup 
+      - docker-compose exec gandalf_the_green task run 
+  test-sh:
+    desc: enters THA MACHINE
+    cmds:
+      - docker-compose exec gandalf_the_green bash
+  up:
+    desc: runs docker compose up 
+    cmds:
+      - docker-compose up --build --remove-orphans
+  prune:
+    desc: docker image prune
+    cmds:
+      - docker rmi $(docker images -q --filter "dangling=true") -f
+      - docker image prune -fa
+      - docker images
+

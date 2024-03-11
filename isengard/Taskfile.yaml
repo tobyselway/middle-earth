@@ -1,0 +1,23 @@
+version: '3'
+
+includes:
+  gographql:
+    dir: ./server
+    taskfile: ./server
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true
+
+  setup:
+    desc: install deps
+    dir: server
+    cmds:
+      - go mod tidy
+  run:
+    desc: runs server
+    dir: server
+    cmds:
+      - go run server.go

@@ -1,0 +1,107 @@
+
+version: '3'
+networks:
+  aether:
+    driver: bridge
+services:
+  isengard:
+    build:
+      dockerfile: Dockerfile
+      context: ./isengard
+    container_name: isengard
+    environment:
+      - GO_ENV=production
+      - ISENGARD_PORT=8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 1s
+      timeout: 10s
+      retries: 50
+    volumes:
+      - ./isengard:/usr/app
+  
+    working_dir: /usr/app
+    ports:
+      - "8000:8000"
+    networks:
+      - aether
+
+  mordor:
+    build:
+      dockerfile: Dockerfile
+      context: ./mordor
+    container_name: mordor
+    environment:
+      - NODE_ENV=development
+      - MORDOR_PORT=4000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/"]
+      interval: 1s
+      timeout: 10s
+      retries: 50
+    volumes:
+      - ./mordor:/usr/app
+    working_dir: /usr/app
+    ports:
+      - "4000:4000"
+    networks:
+      - aether
+  gateway:
+    depends_on:
+      mordor:
+        condition: service_started
+      isengard:
+        condition: service_healthy       
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6473/"]
+      interval: 1s
+      timeout: 10s
+      retries: 50
+    build:
+      dockerfile: Dockerfile
+      context: ./gateway
+    container_name: gateway
+    environment:
+      - NODE_ENV=development
+      - MORDOR_PORT=4000
+      - ISENGARD_PORT=8000
+      - MORDOR_HOST=mordor
+      - ISENGARD_HOST=isengard
+    volumes:
+      - ./gateway:/usr/app
+    working_dir: /usr/app
+    ports:
+      - "6473:6473"
+    networks:
+      - aether
+  shire:
+    build:
+      dockerfile: Dockerfile
+      context: ./shire
+    container_name: shire
+    environment:
+      - NODE_ENV=development
+      - API_URL=http://localhost:6473/query
+    volumes:
+      - ./shire:/usr/app
+    working_dir: /usr/app
+    ports:
+      - "3000:3000"
+    networks:
+      - aether
+  gandalf_the_green:   
+    build:
+      dockerfile: Dockerfile
+      context: ./test
+    container_name: gandalf_the_green
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    environment:
+      - API_URL=http://gateway:6473/query
+      - NODE_ENV=development
+    volumes:
+      - ./test:/usr/app
+    command: /bin/bash
+    networks:
+      - aether
+    working_dir: /usr/app

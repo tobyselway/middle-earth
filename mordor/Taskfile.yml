@@ -1,0 +1,26 @@
+# https://taskfile.dev
+
+version: '3'
+
+interval: 500ms
+
+tasks:
+  default:
+    cmds:
+      - task -l
+    silent: true
+  run:
+    watch: true
+    desc: runs mordor app
+    sources:
+      - '**/*.js'
+    cmds:
+      - cmd: kill -9 $(lsof -ti:4000) 2>/dev/null
+        ignore_error: true
+        silent: true
+      - bun start
+    silent: true
+  setup:
+    desc: installs deps
+    cmds:
+      - bun install

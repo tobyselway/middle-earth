@@ -1,0 +1,104 @@
+#* QUERIES
+
+type Query {
+    posts: [Post!]!
+    post(id: ID!): Post
+
+    comments: [Comment!]!
+    comment(id: ID!): Comment
+    
+    users: [User!]!
+    user(id: ID!): User
+}
+
+#* MUTATIONS
+
+type Mutation {
+    newPost(post: PostInput!): Post!
+    newComment(post_id: ID!, comment: CommentInput!): Comment!
+    newUser(user: UserInput!): UserResult!
+
+    login(login: LoginInput!): LoginResult!
+
+    likePost(post_id: ID!): Status!
+    likeComment(comment_id: ID!): Status!
+}
+
+#* TYPES
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    avatar: String
+}
+
+type Post {
+    id: ID!
+    body: String!
+    likes: Likes!
+    poster: User
+    comments: [Comment!]!
+}
+
+type Comment {
+    id: ID!
+    body: String!
+    likes: Likes!
+    commenter: User
+}
+
+type Likes{
+    count: Int!
+}
+
+type LoginSuccess {
+    token: String!
+}
+
+#* INPUTS
+
+input PostInput {
+    body: String!
+}
+
+input CommentInput {
+    body: String!
+}
+
+input UserInput {
+    name: String!
+    email: String!
+    password: String!
+    avatar: String
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+#* ERROR HANDLING
+
+enum Status {
+    Success
+    Failure
+}
+
+type ValidationError {
+    field: String!
+    rule: String!
+}
+
+type UserNotFoundError {
+    id: ID
+    email: String
+}
+
+type BadCredentialsError {
+    message: String!
+}
+
+union UserResult = User | ValidationError
+
+union LoginResult = LoginSuccess | BadCredentialsError | UserNotFoundError | ValidationError
